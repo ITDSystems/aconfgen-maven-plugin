@@ -13,6 +13,17 @@
         <alfresco.version>5.2.d</alfresco.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>itd-nexus</id>
+            <url>http://nexus.itdhq.com/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>itd-nexus</id>
+            <url>http://nexus.itdhq.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>alfresco-public</id>
@@ -120,6 +131,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

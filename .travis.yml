@@ -15,8 +15,7 @@ before_cache:
 before_script:
     - wget https://raw.githubusercontent.com/ITDSystems/alvex/master/scripts/mvn.sh -O ./mvnw
     - chmod +x mvnw
-#    - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then base64 -d <<< $MAVEN_DEPLOY_SETTINGS | tar -xz -C $HOME; fi'
-
+    - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then base64 -d <<< $MAVEN_DEPLOY_SETTINGS | tar -xz -C $HOME; fi'
 
 script:
     - ./mvnw clean package
@@ -24,9 +23,7 @@ script:
 after_success:
     - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then ./mvnw deploy; fi'
 
-# notifications:
-#   email:
-#     recipients:
-#       - alvex-build@itdhq.com
-#     on_success: change
-#     on_failure: always
+notifications:
+  email:
+    on_success: change
+    on_failure: always
