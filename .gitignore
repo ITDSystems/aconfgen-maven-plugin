@@ -4,3 +4,4 @@ target
 alfresco-conf-maven-plugin.iml
 .DS_Store
 alfresco.log
+build.log
