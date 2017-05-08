@@ -21,7 +21,7 @@ install: true
 
 script:
     - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then export FINAL_PHASE=deploy; else export FINAL_PHASE=package; fi'
-    - ./mvnw -Dinvoker.skip=true clean $FINAL_PHASE
+    - ./mvnw clean $FINAL_PHASE
 
 notifications:
   email:
