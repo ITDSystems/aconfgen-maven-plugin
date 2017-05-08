@@ -5,7 +5,7 @@
     <bean id="resourceBundles" class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
         <property name="resourceBundles">
             <list>
-                <value>dictionary-messages</value>
+                <value>alfresco/messages/dictionary-messages</value>
             </list>
         </property>
     </bean>
@@ -73,14 +73,29 @@
     <bean id="dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="resourceBundles">
         <property name="models">
         <list>
-            <!-- System models  -->
-            <value>dictionaryModel.xml</value>
-            <value>systemModel.xml</value>
-            <value>contentModel.xml</value>
-            <value>applicationModel.xml</value>
-            <value>wcmModel.xml</value>
-            <value>userModel.xml</value>
-            <value>bpmModel.xml</value>
+            <value>alfresco/model/dictionaryModel.xml</value>
+            <value>alfresco/model/systemModel.xml</value>
+            <value>org/alfresco/repo/security/authentication/userModel.xml</value>
+            <value>alfresco/model/contentModel.xml</value>
+            <value>alfresco/model/bpmModel.xml</value>
+            <value>alfresco/model/forumModel.xml</value>
+            <value>alfresco/model/imapModel.xml</value>
+            <value>alfresco/model/transferModel.xml</value>
+            <value>alfresco/model/solrFacetModel.xml</value>
+            <value>alfresco/model/customModelManagementModel.xml</value>
+            <value>alfresco/model/applicationModel.xml</value>
+            <value>org/alfresco/repo/action/actionModel.xml</value>
+            <value>org/alfresco/repo/rule/ruleModel.xml</value>
+            <value>alfresco/model/emailServerModel.xml</value>
+            <value>alfresco/model/calendarModel.xml</value>
+            <value>alfresco/model/blogIntegrationModel.xml</value>
+            <value>alfresco/model/linksModel.xml</value>
+            <value>alfresco/model/remoteCredentialsModel.xml</value>
+            <value>alfresco/model/quickShareModel.xml</value>
+            <value>alfresco/model/surfModel.xml</value>
+            <value>alfresco/model/siteModel.xml</value>
+            <value>alfresco/model/publishingModel.xml</value>
+            <value>alfresco/model/smartfolder-model.xml</value>
         </list>
         </property>
     </bean>

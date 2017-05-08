@@ -1,14 +1,18 @@
-package ru.itdsystems.aconfgen.plugin;
+package com.itdhq.maven.aconfgen.plugin;
 
-import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.repo.dictionary.*;
+import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.service.namespace.QName;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -18,10 +22,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by Kirill Mayboroda on 30.04.17.
- */
-@Mojo(name = "gen-const", defaultPhase = LifecyclePhase.POST_CLEAN, threadSafe = true)
+@Mojo(name = "gen-const", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public class GenerateConstantsMojo extends AbstractMojo {
 
     ApplicationContext context;
@@ -34,6 +35,7 @@ public class GenerateConstantsMojo extends AbstractMojo {
         // Required contexts:
         // org.alfresco.alfresco-data-model-${alfresco.version}.jar/alfresco/data-model-stand-alone-context.xml
         // org.alfresco.alfresco-repository-${alfresco.version}.jar/alfresco/core-services-context.xml
+
         context = new ClassPathXmlApplicationContext("data-model-context.xml");
         DictionaryDAO dictionaryDAO = (DictionaryDAO) context.getBean("dictionaryDAO");
         NamespaceDAO namespaceDAO = (NamespaceDAO) context.getBean("namespaceDAO");

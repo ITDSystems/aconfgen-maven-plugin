@@ -1,5 +1,6 @@
 target
 .idea
+*.iml
 alfresco-conf-maven-plugin.iml
 .DS_Store
 alfresco.log
