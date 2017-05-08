@@ -20,10 +20,8 @@ before_script:
 install: true
 
 script:
-    - ./mvnw -Dinvoker.skip=true clean package
-
-after_success:
-    - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then ./mvnw -Dinvoker.skip=true deploy; fi'
+    - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then export FINAL_PHASE=deploy; else export FINAL_PHASE=package; fi'
+    - ./mvnw -Dinvoker.skip=true clean $FINAL_PHASE
 
 notifications:
   email:
