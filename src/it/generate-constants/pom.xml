@@ -110,14 +110,35 @@
             <plugin>
                 <groupId>com.itdhq.maven</groupId>
                 <artifactId>aconfgen-maven-plugin</artifactId>
-                <version>0.1</version>
+                <version>0.1-SNAPSHOT</version>
                 <executions>
                     <execution>
+                        <id>gen-const</id>
                         <goals>
                             <goal>gen-const</goal>
                         </goals>
                         <configuration>
                             <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/content-model.xml</model>
+                            <path>com.itdhq.aconfgen.test.platformsample.ContentModel</path>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/aconfgen/</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>

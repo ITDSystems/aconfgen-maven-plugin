@@ -5,3 +5,5 @@ alfresco-conf-maven-plugin.iml
 .DS_Store
 alfresco.log
 build.log
+alf_data_dev
+

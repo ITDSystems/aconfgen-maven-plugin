@@ -79,6 +79,6 @@ public class DemoComponent extends AbstractModuleComponent {
     }
 
     public void setProperties() {
-        nodeService.setProperty(null, ContentModel.PROP_ACME_SECURITY_CLASSIFICATION_OPTIONS, null);
+        nodeService.setProperty(null, ContentModel.PROP_ACME_SECURITY_CLASSIFICATION, null);
     }
 }
