@@ -113,13 +113,19 @@
                 <version>0.1-SNAPSHOT</version>
                 <executions>
                     <execution>
-                        <id>gen-const</id>
                         <goals>
                             <goal>gen-const</goal>
                         </goals>
                         <configuration>
-                            <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/content-model.xml</model>
-                            <path>com.itdhq.aconfgen.test.platformsample.ContentModel</path>
+                            <constants>
+                                <constant>
+                                    <path>com.itdhq.aconfgen.test.platformsample.ContentModel</path>
+                                    <models>
+                                        <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/workflow-model.xml</model>
+                                        <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/content-model.xml</model>
+                                    </models>
+                                </constant>
+                            </constants>
                         </configuration>
                     </execution>
                 </executions>

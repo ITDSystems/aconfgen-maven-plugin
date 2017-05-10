@@ -6,4 +6,5 @@ alfresco-conf-maven-plugin.iml
 alfresco.log
 build.log
 alf_data_dev
+solr.log
 

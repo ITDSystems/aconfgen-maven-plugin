@@ -22,5 +22,45 @@
     <!-- ===============================================================================================================
         Constraints, Types, and Aspects go here...
         -->
+    <constraints>
+        <constraint name="acmew:priorityOptions" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>Urgent</value>
+                    <value>Important</value>
+                    <value>Regular</value>
+                    <value>Low priority</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+    
+    <types>
+        <type name="acmew:myTask">
+            <properties>
+                <property name="acmew:taskDueDate">
+                    <type>d:date</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+            <mandatory-aspects>
+                <aspect>acmew:priority</aspect>
+            </mandatory-aspects>
+        </type>
+    </types>
+    
+    <aspects>
+        <aspect name="acmew:priority">
+            <properties>
+                <property name="acmew:taskPriority">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref="acmew:priorityOptions"/>
+                    </constraints>
+                </property>
+            </properties>
+        </aspect>
+    </aspects>
 </model>
 
