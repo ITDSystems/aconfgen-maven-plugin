@@ -4,8 +4,11 @@ import org.alfresco.service.namespace.QName;
 
 public interface ${name} {
 
-    <#list templateVariables as variable>
-    public static QName ${variable.name} = QName.createQName("${variable.URI}", "${variable.localName}");
+    <#list uris as uri>
+    public static final String ${uri.name} = "${uri.value}";
+    </#list>
+    <#list properties as property>
+    public static final QName ${property.name} = QName.createQName(${property.URI}, "${property.localName}");
     </#list>
 
 }

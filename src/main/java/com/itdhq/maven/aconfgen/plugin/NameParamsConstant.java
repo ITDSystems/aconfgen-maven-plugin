@@ -1,12 +1,12 @@
 package com.itdhq.maven.aconfgen.plugin;
 
-public class TemplateVariable {
+public class NameParamsConstant {
 
     private String URI;
     private String name;
     private String localName;
 
-    public TemplateVariable(String name, String URI, String localName) {
+    public NameParamsConstant(String name, String URI, String localName) {
         this.localName = localName;
         this.name = name;
         this.URI = URI;
