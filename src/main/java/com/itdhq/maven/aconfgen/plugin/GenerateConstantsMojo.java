@@ -4,12 +4,9 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.alfresco.repo.dictionary.*;
-import org.alfresco.service.cmr.dictionary.AspectDefinition;
-import org.alfresco.service.cmr.dictionary.NamespaceDefinition;
-import org.alfresco.service.cmr.dictionary.TypeDefinition;
+import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -22,7 +19,7 @@ import java.io.*;
 import java.util.*;
 
 @Mojo(name = "gen-const", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
-public class GenerateConstantsMojo extends AbstractMojo {
+public class GenerateConstantsMojo extends AbstractAconfgenMojo {
 
     private final String PROPERTY = "PROP";
 
@@ -34,7 +31,13 @@ public class GenerateConstantsMojo extends AbstractMojo {
 
     private String className;
 
+    private DictionaryDAO dictionaryDAO;
+
+    private NamespaceDAO namespaceDAO;
+
     private Map<String, String> uriCache = new HashMap<String, String>();
+
+    private Map<QName, Collection<String>> constraintsCache = new HashMap<QName, Collection<String>>();
 
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/aconfgen/")
     private File outputDirectory;
@@ -64,8 +67,10 @@ public class GenerateConstantsMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         context = new ClassPathXmlApplicationContext("data-model-context.xml");
-        DictionaryDAO dictionaryDAO = (DictionaryDAO) context.getBean("dictionaryDAO");
-        NamespaceDAO namespaceDAO = (NamespaceDAO) context.getBean("namespaceDAO");
+        dictionaryDAO = (DictionaryDAO) context.getBean("dictionaryDAO");
+        namespaceDAO = (NamespaceDAO) context.getBean("namespaceDAO");
+
+        processCommonModels();
 
         for (Constants constant : constants) {
 
@@ -76,16 +81,15 @@ public class GenerateConstantsMojo extends AbstractMojo {
 
             for (String path : constant.getModels()) {
 
-                InputStream inputStream;
+                CompiledModel compiledModel;
                 try {
-                    inputStream = new FileInputStream(path);
+                   compiledModel = getCompiledModel(path);
                 }
                 catch (FileNotFoundException e) {
                     getLog().error("Model " + path + " could not be read");
                     break;
                 }
-                M2Model model = M2Model.createModel(inputStream);
-                CompiledModel compiledModel = model.compile(dictionaryDAO, namespaceDAO, true);
+
                 QName modelName = compiledModel.getModelDefinition().getName();
                 for (NamespaceDefinition namespaceDefinition : compiledModel.getModelDefinition().getNamespaces()) {
                     stringConstants.add(createUri(modelName, namespaceDefinition.getUri()));
@@ -119,7 +123,7 @@ public class GenerateConstantsMojo extends AbstractMojo {
                         }
                     }
                 }
-
+                dictionaryDAO.putModel(compiledModel.getM2Model());
             }
             try {
                 generateConstants(qNameConstants, stringConstants);
@@ -128,6 +132,12 @@ public class GenerateConstantsMojo extends AbstractMojo {
                 e.printStackTrace();
             }
         }
+    }
+
+    private CompiledModel getCompiledModel(String path) throws FileNotFoundException {
+        InputStream inputStream = new FileInputStream(path);
+        M2Model model = M2Model.createModel(inputStream);
+        return model.compile(dictionaryDAO, namespaceDAO, true);
     }
 
     private boolean checkIfAllowed(QName qName) {
@@ -170,7 +180,8 @@ public class GenerateConstantsMojo extends AbstractMojo {
 
     }
 
-    private void generateConstants(Set<NameParamsConstant> nameParamsConstants, Set<NameValueConstant> nameValueConstantSet) throws IOException, TemplateException {
+    private void generateConstants(Set<NameParamsConstant> nameParamsConstants,
+                                   Set<NameValueConstant> nameValueConstantSet) throws IOException, TemplateException {
         Configuration configuration = new Configuration();
         configuration.setClassForTemplateLoading(this.getClass(), "/templates/");
         configuration.setDefaultEncoding("UTF-8");
@@ -186,6 +197,31 @@ public class GenerateConstantsMojo extends AbstractMojo {
         Writer fileWriter = new FileWriter(new File(outputDirectory + "/" + className + ".java"));
         template.process(input, fileWriter);
         fileWriter.close();
+    }
+
+    @Override
+    protected void processCommonModels() {
+        String[] models = getModels();
+        if (models != null) {
+            for (String model : models) {
+                CompiledModel compiledModel;
+                try {
+                    compiledModel = getCompiledModel(model);
+                }
+                catch (FileNotFoundException e) {
+                    getLog().error("Model " + model + " could not be read");
+                    break;
+                }
+                for (ConstraintDefinition constraintDefinition : compiledModel.getConstraints()) {
+                    Constraint constraint = constraintDefinition.getConstraint();
+                    if (constraint.getType().equals("LIST")) {
+                        Collection<String> values = (Collection<String>) constraint.getParameters().get("allowedValues");
+                        constraintsCache.put(constraintDefinition.getName(), values);
+                    }
+                }
+                dictionaryDAO.putModel(compiledModel.getM2Model());
+            }
+        }
     }
 }
 
