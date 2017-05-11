@@ -111,6 +111,11 @@
                 <groupId>com.itdhq.maven</groupId>
                 <artifactId>aconfgen-maven-plugin</artifactId>
                 <version>0.1-SNAPSHOT</version>
+                <configuration>
+                    <models>
+                        <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/constraint-model.xml</model>
+                    </models>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
