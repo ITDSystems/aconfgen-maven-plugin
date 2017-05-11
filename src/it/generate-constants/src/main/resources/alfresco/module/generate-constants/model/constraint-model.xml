@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="acmec:constraintModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <!-- Optional meta-data about the model -->
+    <description>Sample Constraint Model</description>
+    <author>My Name</author>
+    <version>1.0</version>
+
+    <imports>
+        <!-- Import Alfresco Dictionary Definitions -->
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <!-- Import Alfresco Content Domain Model Definitions -->
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <!-- Import Alfresco System Model Definitions -->
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+    </imports>
+
+    <!-- Custom namespace for the ACME company -->
+    <namespaces>
+        <namespace uri="http://www.acme.org/model/constraint/1.0" prefix="acmec"/>
+    </namespaces>
+
+    <constraints>
+        <constraint name="acmec:effectivePeriodOptions" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value></value>
+                    <!-- Empty for default search-->
+                    <value>1 year</value>
+                    <value>5 years</value>
+                    <value>10 years</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+
+</model>
