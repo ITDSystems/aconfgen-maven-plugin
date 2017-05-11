@@ -53,6 +53,15 @@
                     <type>d:text</type>
                 </property>
             </properties>
+            <associations>
+                <association name="acme:owner">
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>true</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+            </associations>
             <mandatory-aspects>
                 <aspect>acme:securityClassified</aspect>
             </mandatory-aspects>
@@ -79,6 +88,15 @@
                     </constraints>
                 </property>
             </properties>
+            <associations>
+                <association name="acme:regulatoryDocument">
+                    <target>
+                        <class>cm:content</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>
         </aspect>
     </aspects>
 
