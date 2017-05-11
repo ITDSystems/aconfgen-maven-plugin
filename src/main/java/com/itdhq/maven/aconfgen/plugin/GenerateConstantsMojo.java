@@ -24,6 +24,10 @@ import java.util.*;
 @Mojo(name = "gen-const", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true)
 public class GenerateConstantsMojo extends AbstractMojo {
 
+    private final String PROPERTY = "PROP";
+
+    private final String ASSOCIATION = "ASSOC";
+
     private ApplicationContext context;
 
     private String packageName;
@@ -67,8 +71,8 @@ public class GenerateConstantsMojo extends AbstractMojo {
 
             setNames(constant);
 
-            Set<NameParamsConstant> nameParamsConstants = new HashSet<NameParamsConstant>();
-            Set<NameValueConstant> nameValueConstantSet = new HashSet<NameValueConstant>();
+            Set<NameParamsConstant> qNameConstants = new HashSet<NameParamsConstant>();
+            Set<NameValueConstant> stringConstants = new HashSet<NameValueConstant>();
 
             for (String path : constant.getModels()) {
 
@@ -84,21 +88,32 @@ public class GenerateConstantsMojo extends AbstractMojo {
                 CompiledModel compiledModel = model.compile(dictionaryDAO, namespaceDAO, true);
                 QName modelName = compiledModel.getModelDefinition().getName();
                 for (NamespaceDefinition namespaceDefinition : compiledModel.getModelDefinition().getNamespaces()) {
-                    nameValueConstantSet.add(createUri(modelName, namespaceDefinition.getUri()));
+                    stringConstants.add(createUri(modelName, namespaceDefinition.getUri()));
                 }
 
 
                 for (TypeDefinition typeDefinition : compiledModel.getTypes()) {
                     for (QName qName : typeDefinition.getProperties().keySet()) {
-                        if (!excludedModels.contains(qName.getNamespaceURI())) {
-                            nameParamsConstants.add(createVariable(qName, "PROP"));
+                        if (checkIfAllowed(qName)) {
+                            qNameConstants.add(createQNameConstant(qName, PROPERTY));
+                        }
+                    }
+
+                    for (QName qName : typeDefinition.getAssociations().keySet()) {
+                        if (checkIfAllowed(qName)) {
+                            qNameConstants.add(createQNameConstant(qName, ASSOCIATION));
                         }
                     }
                     for (AspectDefinition aspectDefinition : typeDefinition.getDefaultAspects()) {
-                        if (!excludedModels.contains(aspectDefinition.getName().getNamespaceURI())) {
+                        if (checkIfAllowed(aspectDefinition.getName())) {
                             for (QName qName : aspectDefinition.getProperties().keySet()) {
-                                if (!excludedModels.contains(qName.getNamespaceURI())) {
-                                    nameParamsConstants.add(createVariable(qName, "PROP"));
+                                if (checkIfAllowed(qName)) {
+                                    qNameConstants.add(createQNameConstant(qName, PROPERTY));
+                                }
+                            }
+                            for (QName qName : aspectDefinition.getAssociations().keySet()) {
+                                if (checkIfAllowed(qName)) {
+                                    qNameConstants.add(createQNameConstant(qName, ASSOCIATION));
                                 }
                             }
                         }
@@ -107,12 +122,16 @@ public class GenerateConstantsMojo extends AbstractMojo {
 
             }
             try {
-                generateConstants(nameParamsConstants, nameValueConstantSet);
+                generateConstants(qNameConstants, stringConstants);
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private boolean checkIfAllowed(QName qName) {
+        return !excludedModels.contains(qName.getNamespaceURI());
     }
 
     private void setNames(Constants constant) {
@@ -130,10 +149,10 @@ public class GenerateConstantsMojo extends AbstractMojo {
     private NameValueConstant createUri(QName qName, String uri) {
         String name = qName.getPrefixString().substring(0, qName.getPrefixString().indexOf(':')).toUpperCase() + "_URI";
         uriCache.put(uri, name);
-        return new NameValueConstant(name.toString(), uri);
+        return new NameValueConstant(name, uri);
     }
 
-    private NameParamsConstant createVariable(QName qName, String prefix) {
+    private NameParamsConstant createQNameConstant(QName qName, String prefix) {
         String[] words = qName.getLocalName().split("(?=\\p{Lu})");
         int splitIndex = qName.getPrefixString().indexOf(':');
         StringBuilder name = new StringBuilder(prefix + "_" + qName.getPrefixString().substring(0, splitIndex).toUpperCase() + "_");
