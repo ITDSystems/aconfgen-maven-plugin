@@ -37,15 +37,13 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
 
     private NamespaceDAO namespaceDAO;
 
-    private Map<String, String> uriCache = new HashMap<String, String>();
+    private Map<String, String> uriNamesCache = new HashMap<String, String>();
 
     private Map<QName, Collection<String>> constraintsCache = new HashMap<QName, Collection<String>>();
 
     private Set<NameParamsConstant> qNameConstants;
 
     private Set<NameValueConstant> stringConstants;
-
-    private Map<String, String> uriResolver = new HashMap<String, String>();
 
     private Set<QName> dependencyConstraints = new HashSet<QName>();
 
@@ -101,7 +99,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                 }
 
                 QName modelName = compiledModel.getModelDefinition().getName();
-                uriResolver.put(getPrefix(modelName.getPrefixString()), modelName.getNamespaceURI());
+                dictionaryDAO.putModel(compiledModel.getM2Model());
 
                 for (NamespaceDefinition namespaceDefinition : compiledModel.getModelDefinition().getNamespaces()) {
                     stringConstants.add(createUri(modelName, namespaceDefinition.getUri()));
@@ -110,12 +108,9 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
 
                 for (ConstraintDefinition constraintDefinition : compiledModel.getConstraints()) {
                     Constraint constraint = constraintDefinition.getConstraint();
-                    String prefix = getPrefix(constraint.getShortName());
-                    String localName = getLocalName(constraint.getShortName());
-                    String uri = uriResolver.get(getPrefix(constraint.getShortName()));
-                    QName constraintQName = QName.createQName(uri, localName);
+                    QName constraintQName = QName.createQName(constraint.getShortName(), namespaceDAO);
                     if (!constraintsCache.containsKey(constraintQName) || dependencyConstraints.contains(constraintQName)) {
-                        qNameConstants.add(createConstantQName(uri, prefix, localName, CONSTRAINT));
+                        qNameConstants.add(createConstantQName(constraintQName, CONSTRAINT));
                         if (constraint.getType().equals("LIST")) {
                             Collection<String> values = (Collection<String>) constraint.getParameters()
                                     .get("allowedValues");
@@ -146,7 +141,6 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                         }
                     }
                 }
-                dictionaryDAO.putModel(compiledModel.getM2Model());
             }
             try {
                 generateConstants(qNameConstants, stringConstants);
@@ -164,8 +158,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                 PropertyDefinition property = properties.get(qName);
                 for (ConstraintDefinition constraintDefinition : property.getConstraints()) {
                     Constraint constraint = constraintDefinition.getConstraint();
-                    String uri = uriResolver.get(getPrefix(constraint.getShortName()));
-                    QName constraintQName = QName.createQName(uri, getLocalName(constraint.getShortName()));
+                    QName constraintQName = QName.createQName(constraint.getShortName(), namespaceDAO);
                     if (constraintsCache.containsKey(constraintQName)) {
                         for (String value : constraintsCache.get(constraintQName)) {
                             stringConstants.add(createPropertyValues(qName, value));
@@ -200,7 +193,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
 
     private NameValueConstant createUri(QName qName, String uri) {
         String name = getPrefix(qName.getPrefixString()).toUpperCase() + "_URI";
-        uriCache.put(uri, name);
+        uriNamesCache.put(uri, name);
         return new NameValueConstant(name, uri);
     }
 
@@ -228,47 +221,21 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
         return line;
     }
 
-    private String getLocalName(String line) {
-        if (line.contains(":")) {
-            return line.substring(line.indexOf(':') + 1);
-        }
-        return line;
-    }
-
     private NameParamsConstant createConstantQName(QName qName, String prefix) {
         String name = createName(qName, prefix);
         String uri;
-        if (uriCache.containsKey(qName.getNamespaceURI())) {
-            uri = uriCache.get(qName.getNamespaceURI());
+        if (uriNamesCache.containsKey(qName.getNamespaceURI())) {
+            uri = uriNamesCache.get(qName.getNamespaceURI());
         }
         else
             uri = "\"" + qName.getNamespaceURI() + "\"";
         String localName = qName.getLocalName();
-        if (localName.contains(":")) {
-            localName = getLocalName(localName);
-        }
         return new NameParamsConstant(name, uri, localName);
-    }
-
-    private NameParamsConstant createConstantQName(String uri, String prefix, String localName, String type) {
-        StringBuilder name = new StringBuilder(type + "_" + prefix.toUpperCase() + "_");
-        String[] words = localName.split("(?=\\p{Lu})");
-        for (String word : words) {
-            name.append(word.toUpperCase()).append("_");
-        }
-        String varName = name.substring(0, name.length() - 1);
-        if (uriCache.containsKey(uri)) {
-            uri = uriCache.get(uri);
-        }
-        else {
-            uri = "\"" + uri + "\"";
-        }
-        return new NameParamsConstant(varName, uri, localName);
     }
 
     private String createName(QName qName, String prefix) {
         String prefixString = qName.getPrefixString();
-        String shortName = getLocalName(prefixString);
+        String shortName = qName.getLocalName();
         String[] words = shortName.split("(?=\\p{Lu})");
         StringBuilder name = new StringBuilder(prefix + "_" + getPrefix(prefixString)
                 .toUpperCase() + "_");
@@ -309,22 +276,19 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                 getLog().error("Model " + model + " could not be read");
                 break;
             }
+            dictionaryDAO.putModel(compiledModel.getM2Model());
             for (ConstraintDefinition constraintDefinition : compiledModel.getConstraints()) {
                 Constraint constraint = constraintDefinition.getConstraint();
                 if (constraint.getType().equals("LIST")) {
                     Collection<String> values = (Collection<String>) constraint.getParameters()
                             .get("allowedValues");
-                    uriResolver.put(getPrefix(constraintDefinition.getName().getPrefixString()),
-                            constraintDefinition.getName().getNamespaceURI());
-                    QName constraintQName = QName.createQName(constraintDefinition.getName().getNamespaceURI(),
-                            getLocalName(constraint.getShortName()));
+                    QName constraintQName = QName.createQName(constraint.getShortName(), namespaceDAO);
                     if (!dependencyConstraints.contains(constraintQName)) {
                         dependencyConstraints.add(constraintQName);
                     }
                     constraintsCache.put(constraintQName, values);
                 }
             }
-            dictionaryDAO.putModel(compiledModel.getM2Model());
         }
 
     }
