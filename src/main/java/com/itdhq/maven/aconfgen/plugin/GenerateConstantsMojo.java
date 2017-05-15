@@ -115,7 +115,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                     String uri = uriResolver.get(getPrefix(constraint.getShortName()));
                     QName constraintQName = QName.createQName(uri, localName);
                     if (!constraintsCache.containsKey(constraintQName) || dependencyConstraints.contains(constraintQName)) {
-                        qNameConstants.add(createQNameConstant(uri, prefix, localName, CONSTRAINT));
+                        qNameConstants.add(createConstantQName(uri, prefix, localName, CONSTRAINT));
                         if (constraint.getType().equals("LIST")) {
                             Collection<String> values = (Collection<String>) constraint.getParameters()
                                     .get("allowedValues");
@@ -130,17 +130,17 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                     processProperties(typeDefinition.getProperties());
 
                     for (QName qName : typeDefinition.getAssociations().keySet()) {
-                        if (checkIfAllowed(qName)) {
-                            qNameConstants.add(createQNameConstant(qName, ASSOCIATION));
+                        if (isAllowed(qName)) {
+                            qNameConstants.add(createConstantQName(qName, ASSOCIATION));
                         }
                     }
                     for (AspectDefinition aspectDefinition : typeDefinition.getDefaultAspects()) {
-                        if (checkIfAllowed(aspectDefinition.getName())) {
+                        if (isAllowed(aspectDefinition.getName())) {
                             processProperties(aspectDefinition.getProperties());
 
                             for (QName qName : aspectDefinition.getAssociations().keySet()) {
-                                if (checkIfAllowed(qName)) {
-                                    qNameConstants.add(createQNameConstant(qName, ASSOCIATION));
+                                if (isAllowed(qName)) {
+                                    qNameConstants.add(createConstantQName(qName, ASSOCIATION));
                                 }
                             }
                         }
@@ -159,8 +159,8 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
 
     private void processProperties(Map<QName, PropertyDefinition> properties) {
         for (QName qName : properties.keySet()) {
-            if (checkIfAllowed(qName)) {
-                qNameConstants.add(createQNameConstant(qName, PROPERTY));
+            if (isAllowed(qName)) {
+                qNameConstants.add(createConstantQName(qName, PROPERTY));
                 PropertyDefinition property = properties.get(qName);
                 for (ConstraintDefinition constraintDefinition : property.getConstraints()) {
                     Constraint constraint = constraintDefinition.getConstraint();
@@ -182,14 +182,14 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
         return model.compile(dictionaryDAO, namespaceDAO, true);
     }
 
-    private boolean checkIfAllowed(QName qName) {
+    private boolean isAllowed(QName qName) {
         return !excludedModels.contains(qName.getNamespaceURI());
     }
 
     private void setNames(Constants constant) {
         String path = constant.getPath();
         if (path != null) {
-            if (path.contains(".java")) {
+            if (path.endsWith(".java")) {
                 path.replace(".java", "");
             }
             int splitIndex = constant.getPath().lastIndexOf('.');
@@ -235,7 +235,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
         return line;
     }
 
-    private NameParamsConstant createQNameConstant(QName qName, String prefix) {
+    private NameParamsConstant createConstantQName(QName qName, String prefix) {
         String name = createName(qName, prefix);
         String uri;
         if (uriCache.containsKey(qName.getNamespaceURI())) {
@@ -250,7 +250,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
         return new NameParamsConstant(name, uri, localName);
     }
 
-    private NameParamsConstant createQNameConstant(String uri, String prefix, String localName, String type) {
+    private NameParamsConstant createConstantQName(String uri, String prefix, String localName, String type) {
         StringBuilder name = new StringBuilder(type + "_" + prefix.toUpperCase() + "_");
         String[] words = localName.split("(?=\\p{Lu})");
         for (String word : words) {
@@ -291,6 +291,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
         packageName = packageName.replace('.', '/');
         outputDirectory = new File(outputDirectory + "/" + packageName);
         outputDirectory.mkdirs();
+        project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         Template template = configuration.getTemplate("constants-class.ftl");
         Writer fileWriter = new FileWriter(new File(outputDirectory + "/" + className + ".java"));
         template.process(input, fileWriter);
@@ -300,34 +301,32 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
     @Override
     protected void processCommonModels() {
         String[] models = getModels();
-        if (models != null) {
-            for (String model : models) {
-                CompiledModel compiledModel;
-                try {
-                    compiledModel = getCompiledModel(model);
-                }
-                catch (FileNotFoundException e) {
-                    getLog().error("Model " + model + " could not be read");
-                    break;
-                }
-                for (ConstraintDefinition constraintDefinition : compiledModel.getConstraints()) {
-                    Constraint constraint = constraintDefinition.getConstraint();
-                    if (constraint.getType().equals("LIST")) {
-                        Collection<String> values = (Collection<String>) constraint.getParameters()
-                                .get("allowedValues");
-                        uriResolver.put(getPrefix(constraintDefinition.getName().getPrefixString()),
-                                constraintDefinition.getName().getNamespaceURI());
-                        QName constraintQName = QName.createQName(constraintDefinition.getName().getNamespaceURI(),
-                                getLocalName(constraint.getShortName()));
-                        if (!dependencyConstraints.contains(constraintQName)) {
-                            dependencyConstraints.add(constraintQName);
-                        }
-                        constraintsCache.put(constraintQName, values);
-                    }
-                }
-                dictionaryDAO.putModel(compiledModel.getM2Model());
+        for (String model : models) {
+            CompiledModel compiledModel;
+            try {
+                compiledModel = getCompiledModel(model);
+            } catch (FileNotFoundException e) {
+                getLog().error("Model " + model + " could not be read");
+                break;
             }
+            for (ConstraintDefinition constraintDefinition : compiledModel.getConstraints()) {
+                Constraint constraint = constraintDefinition.getConstraint();
+                if (constraint.getType().equals("LIST")) {
+                    Collection<String> values = (Collection<String>) constraint.getParameters()
+                            .get("allowedValues");
+                    uriResolver.put(getPrefix(constraintDefinition.getName().getPrefixString()),
+                            constraintDefinition.getName().getNamespaceURI());
+                    QName constraintQName = QName.createQName(constraintDefinition.getName().getNamespaceURI(),
+                            getLocalName(constraint.getShortName()));
+                    if (!dependencyConstraints.contains(constraintQName)) {
+                        dependencyConstraints.add(constraintQName);
+                    }
+                    constraintsCache.put(constraintQName, values);
+                }
+            }
+            dictionaryDAO.putModel(compiledModel.getM2Model());
         }
+
     }
 }
 
