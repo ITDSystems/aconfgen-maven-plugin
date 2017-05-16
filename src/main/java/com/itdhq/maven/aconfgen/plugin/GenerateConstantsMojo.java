@@ -143,10 +143,13 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                 }
             }
             try {
-                generateConstants(qNameConstants, stringConstants);
+                generateConstants();
             }
-            catch (Exception e) {
+            catch (IOException e) {
                 e.printStackTrace();
+            }
+            catch (TemplateException e) {
+                getLog().error("Could write file to " + outputDirectory.getAbsolutePath());
             }
         }
     }
@@ -245,16 +248,15 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
         return name.substring(0, name.length() - 1);
     }
 
-    private void generateConstants(Set<NameParamsConstant> nameParamsConstants,
-                                   Set<NameValueConstant> nameValueConstantSet) throws IOException, TemplateException {
+    private void generateConstants() throws IOException, TemplateException {
         Configuration configuration = new Configuration();
         configuration.setClassForTemplateLoading(this.getClass(), "/templates/");
         configuration.setDefaultEncoding("UTF-8");
         Map<String, Object> input = new HashMap<String, Object>();
         input.put("packageName", packageName);
         input.put("name", className);
-        input.put("properties", nameParamsConstants);
-        input.put("uris", nameValueConstantSet);
+        input.put("paramsConstants", qNameConstants);
+        input.put("stringConstants", stringConstants);
         packageName = packageName.replace('.', '/');
         outputDirectory = new File(outputDirectory + "/" + packageName);
         outputDirectory.mkdirs();
@@ -272,7 +274,8 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
             CompiledModel compiledModel;
             try {
                 compiledModel = getCompiledModel(model);
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e) {
                 getLog().error("Model " + model + " could not be read");
                 break;
             }

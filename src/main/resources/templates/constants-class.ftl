@@ -4,11 +4,11 @@ import org.alfresco.service.namespace.QName;
 
 public interface ${name} {
 
-    <#list uris as uri>
-    public static final String ${uri.name} = "${uri.value}";
+    <#list stringConstants as constant>
+    public static final String ${constant.name} = "${constant.value}";
     </#list>
-    <#list properties as property>
-    public static final QName ${property.name} = QName.createQName(${property.URI}, "${property.localName}");
+    <#list paramsConstants as constant>
+    public static final QName ${constant.name} = QName.createQName(${constant.URI}, "${constant.localName}");
     </#list>
 
 }
