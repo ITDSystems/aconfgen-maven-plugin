@@ -118,6 +118,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>gen-const</id>
                         <goals>
                             <goal>gen-const</goal>
                         </goals>
@@ -131,6 +132,20 @@
                                     </models>
                                 </constant>
                             </constants>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>gen-model</id>
+                        <goals>
+                            <goal>gen-model</goal>
+                        </goals>
+                        <configuration>
+                            <processModels>
+                                <processModel>
+                                    <input>${project.basedir}/src/main/resources/alfresco/module/generate-constants/workflow/sample-process.bpmn20.xml</input>
+                                    <output></output>
+                                </processModel>
+                            </processModels>
                         </configuration>
                     </execution>
                 </executions>
