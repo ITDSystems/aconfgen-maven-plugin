@@ -149,7 +149,7 @@ public class GenerateConstantsMojo extends AbstractAconfgenMojo {
                 e.printStackTrace();
             }
             catch (TemplateException e) {
-                getLog().error("Could write file to " + outputDirectory.getAbsolutePath());
+                getLog().error("Cannot write file to " + outputDirectory.getAbsolutePath());
             }
         }
     }
