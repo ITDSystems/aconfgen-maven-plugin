@@ -104,6 +104,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.192</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -112,7 +118,7 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.3</version>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <artifactId>maven-invoker-plugin</artifactId>
                 <version>2.0.0</version>
                 <configuration>
@@ -128,7 +134,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 </project>
