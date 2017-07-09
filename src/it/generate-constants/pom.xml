@@ -113,6 +113,7 @@
                 <version>0.1-SNAPSHOT</version>
                 <executions>
                     <execution>
+                        <id>gen-const</id>
                         <goals>
                             <goal>generate-constants</goal>
                         </goals>
@@ -132,7 +133,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--
                 The Alfresco Maven Plugin contains all the logic to run the extension
                 in an embedded Tomcat with the H2 database.

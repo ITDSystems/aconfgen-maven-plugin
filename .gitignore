@@ -1,10 +1,10 @@
 target
 .idea
 *.iml
-alfresco-conf-maven-plugin.iml
 .DS_Store
-alfresco.log
+alfresco.log*
 build.log
 alf_data_dev
 solr.log
+interpolated-pom.xml
 
