@@ -79,15 +79,13 @@ public class DemoComponent extends AbstractModuleComponent {
     }
 
     public void setProperties() {
-        nodeService.setProperty(null, ContentModel.PROP_ACME_SECURITY_CLASSIFICATION, null);
+        nodeService.setProperty(null, ContentModel.PROP_ACME_SECURITY_CLASSIFICATION, ContentModel.PROP_ACME_SECURITY_CLASSIFICATION_PUBLIC);
         nodeService.setProperty(null, ContentModel.PROP_ACMEW_TASK_PRIORITY, null);
-        nodeService.setProperty(null, ContentModel.CONSTRAINT_ACMEC_EFFECTIVE_PERIOD_OPTIONS, null);
         nodeService.setProperty(null, ContentModel.PROP_ACME_DOCUMENT_ID, null);
-        nodeService.setProperty(null, ContentModel.ASSOC_ACME_REGULATORY_DOCUMENT, null);
-        nodeService.setProperty(null, ContentModel.CONSTRAINT_ACMEW_PRIORITY_OPTIONS, null);
-        nodeService.setProperty(null, ContentModel.ASSOC_ACME_OWNER, null);
-        nodeService.setProperty(null, ContentModel.CONSTRAINT_ACME_SECURITY_CLASSIFICATION_OPTIONS, null);
         nodeService.setProperty(null, ContentModel.PROP_ACMEW_TASK_DUE_DATE, null);
-        nodeService.setProperty(null, ContentModel.PROP_ACME_EFFECTIVE_PERIOD, null);
+        nodeService.setProperty(null, ContentModel.PROP_ACME_EFFECTIVE_PERIOD, ContentModel.PROP_ACME_EFFECTIVE_PERIOD_EMPTY);
+
+        nodeService.createNode(null, ContentModel.ASSOC_ACME_REGULATORY_DOCUMENT, null, ContentModel.TYPE_ACME_DOCUMENT);
+        nodeService.createAssociation(null, null, ContentModel.ASSOC_ACME_OWNER);
     }
 }

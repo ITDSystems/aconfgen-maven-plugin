@@ -111,28 +111,49 @@
                 <groupId>com.itdhq.maven</groupId>
                 <artifactId>aconfgen-maven-plugin</artifactId>
                 <version>0.1-SNAPSHOT</version>
+                <configuration>
+                    <models>
+                        <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/constraint-model.xml</model>
+                    </models>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>generate-constants</goal>
+                            <goal>kotlin-gen-const</goal>
                         </goals>
                         <configuration>
                             <constants>
-                                <constantsItem>
-                                    <qualifiedName>com.itdhq.aconfgen.test.platformsample.ContentModel</qualifiedName>
+                                <constant>
+                                    <path>com.itdhq.aconfgen.test.platformsample.ContentModel</path>
                                     <models>
-                                        <directory>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/</directory>
-                                        <includes>
-                                            <include>**/*.xml</include>
-                                        </includes>
+                                        <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/workflow-model.xml</model>
+                                        <model>${project.basedir}/src/main/resources/alfresco/module/generate-constants/model/content-model.xml</model>
                                     </models>
-                                </constantsItem>
+                                </constant>
                             </constants>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/aconfgen/</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!--
                 The Alfresco Maven Plugin contains all the logic to run the extension
                 in an embedded Tomcat with the H2 database.
