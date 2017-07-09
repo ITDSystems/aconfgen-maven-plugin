@@ -142,7 +142,7 @@
                         <configuration>
                             <processModels>
                                 <processModel>
-                                    <input>${project.basedir}/src/main/resources/alfresco/module/generate-constants/workflow/sample-process.bpmn20.xml</input>
+                                    <input>/Users/kirill/IdeaProjects/aconfgen-maven-plugin/src/it/generate-constants/src/main/resources/alfresco/module/generate-constants/workflow/my-process.bpmn20.xml</input>
                                     <output></output>
                                 </processModel>
                             </processModels>
