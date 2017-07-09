@@ -6,9 +6,9 @@
    xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema"
    expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
 
-   <process id="my-process">
+   <process id="my-process" isExecutable="true">
 
-      <startEvent id="start" />
+      <startEvent id="start"/>
       <sequenceFlow id="flow1" sourceRef="start" targetRef="someTask" />
       
       <userTask id="someTask" name="Activiti is awesome!" />
